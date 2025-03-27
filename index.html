@@ -152,16 +152,18 @@
                     isValid = false;
                 }
 
-        // Validate Audio File (only accept suspect_voice00.mp3 with any capitalization of 'suspect')
-if (!audioFile) {
-    document.getElementById('audioFileError').style.display = 'inline';  // Show "This field is required"
-    document.getElementById('audioFileDropZone').classList.add('error-border-audio');
-    isValid = false;
-} else if (!/^suspect_voice00\.mp3$/i.test(audioFile.name)) {  // Match only suspect_voice00.mp3
-    document.getElementById('audioFileDropZone').classList.add('error-border-audio');
-    isValid = false;
-}
-
+                // Validate Audio File (only accept suspect_voice00.mp3 with any capitalization of 'suspect')
+                if (!audioFile) {
+                    document.getElementById('audioFileError').style.display = 'inline';  // Show "This field is required"
+                    document.getElementById('audioFileDropZone').classList.add('error-border-audio');
+                    isValid = false;
+                } else {
+                    console.log("Selected file:", audioFile.name);  // Debugging statement to see the file name
+                    if (!/^suspect_voice00\.mp3$/i.test(audioFile.name)) {  // Match only suspect_voice00.mp3
+                        document.getElementById('audioFileDropZone').classList.add('error-border-audio');
+                        isValid = false;
+                    }
+                }
 
                 // Validate Witness selection
                 if (!(witnessYes || witnessNo)) {
