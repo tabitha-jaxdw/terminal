@@ -20,13 +20,18 @@ body {
             rgba(0, 0, 0, 0.1) 4px
         ),
         radial-gradient(circle, rgba(0, 255, 0, 0.1), rgba(0, 0, 0, 0.4));
-    animation: screenFlicker 0.2s infinite alternate;
+    animation: screenFlicker 0.2s infinite alternate, scanline 0.1s infinite;
     z-index: 1;
 }
 
 @keyframes screenFlicker {
     0% { opacity: 0.98; }
     100% { opacity: 1; }
+}
+
+@keyframes scanline {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100%; }
 }
 
 .terminal {
@@ -46,6 +51,19 @@ body {
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
     z-index: 10;
     overflow: hidden;  /* Prevent overflow that could hide the border */
+    animation: blurIn 1s ease-out forwards;
+    filter: blur(10px);  /* Start blurred */
+}
+
+@keyframes blurIn {
+    0% {
+        filter: blur(10px);  /* Start with a blur */
+        opacity: 0;
+    }
+    100% {
+        filter: blur(0);     /* End with no blur */
+        opacity: 1;
+    }
 }
 
 input, button {
@@ -56,7 +74,11 @@ input, button {
     text-align: center;
 }
 
-button:hover { color: white; }
+button:hover {
+    color: white;
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
 
 .login-overlay {
     position: fixed;
@@ -69,6 +91,18 @@ button:hover { color: white; }
     justify-content: center;
     align-items: center;
     z-index: 100;
+    animation: fadeInOverlay 1s ease-in-out;
+}
+
+@keyframes fadeInOverlay {
+    0% {
+        opacity: 0;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .login-container {
@@ -117,9 +151,23 @@ button:hover { color: white; }
     transform: scale(1.2);
 }
 
+.witness-container input[type="radio"]:hover {
+    transform: scale(1.3);
+    transition: transform 0.3s ease;
+}
+
 .error-message {
     color: red;
     font-size: 0.9em;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
 }
 
 .error-border {
@@ -140,6 +188,22 @@ button:hover { color: white; }
     transform: translate(-50%, -90%);
     z-index: 15;
     display: none;
+    animation: blinkAndScale 2s ease-in-out infinite;
+}
+
+@keyframes blinkAndScale {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 #response {
@@ -148,6 +212,18 @@ button:hover { color: white; }
     font-weight: bold;
     margin-top: 20px;
     display: none; /* Initially hidden */
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 #response.error {
@@ -158,30 +234,6 @@ button:hover { color: white; }
     color: lime; /* Green for success messages */
 }
 
-.warning-message {
-    font-size: 2em;
-    font-weight: bold;
-    color: red;
-    background-color: rgba(1, 14, 1, 0.5);
-    margin-bottom: 20px;
-    padding: 10px;
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -90%);
-    z-index: 15;
-    display: none;
-    animation: blink 2s ease-in-out infinite;
-}
-
-@keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
-/* Style for the drag-and-drop file upload */
 .drop-zone {
     width: auto;
     padding: 20px;
@@ -189,17 +241,19 @@ button:hover { color: white; }
     border: 2px dashed green;
     text-align: center;
     cursor: pointer;
+    transition: transform 0.2s ease;
 }
 
 .drop-zone.dragover {
     background-color: rgba(0, 255, 0, 0.1);
+    transform: scale(1.05);
 }
 
 .error-border {
     border: 2px solid red !important;
 }
 
-.error-border-audio{
+.error-border-audio {
     border: 2px dashed red !important;
 }
 
