@@ -188,7 +188,7 @@ button:hover {
     transform: translate(-50%, -90%);
     z-index: 15;
     display: none;
-    animation: blinkAndScale 2s ease-in-out infinite;
+    animation:  2s ease-in-out infinite;
 }
 
 @keyframes blinkAndScale {
