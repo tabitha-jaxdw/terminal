@@ -52,17 +52,17 @@ body {
     z-index: 10;
     overflow: hidden;  /* Prevent overflow that could hide the border */
     animation: blurIn 1s ease-out forwards;
-    filter: blur(10px);  /* Start blurred */
+    opacity: 0;  /* Start as invisible */
 }
 
 @keyframes blurIn {
     0% {
-        filter: blur(10px);  /* Start with a blur */
-        opacity: 0;
+        filter: blur(10px);  /* Start with blur */
+        opacity: 0;  /* Start invisible */
     }
     100% {
-        filter: blur(0);     /* End with no blur */
-        opacity: 1;
+        filter: blur(0);  /* End with no blur */
+        opacity: 1;  /* Fully visible */
     }
 }
 
