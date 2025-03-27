@@ -4,307 +4,206 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security Terminal</title>
-    <style>
-        body, .terminal { 
-            font-family: 'Courier New', Courier, monospace;
-            background-color: rgb(20, 20, 20); 
-            color: green; 
-            text-align: center;
-            overflow: hidden;
-        }
-
-        label { color: lime; }
-
-        .screen-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            background: 
-                linear-gradient(rgba(0, 0, 0, 0.1) 50%, rgba(0, 255, 0, 0.08) 50%) 0 0 / 100% 4px,
-                radial-gradient(circle, rgba(0, 255, 0, 0.2), rgba(0, 0, 0, 0.6));
-            animation: screenFlicker 0.2s infinite alternate;
-            z-index: 10;
-        }
-
-        @keyframes screenFlicker {
-            0% { opacity: 0.98; }
-            100% { opacity: 1; }
-        }
-
-        .terminal { 
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 10px 20px;
-            margin: 0; 
-            border: 6px solid green; 
-            padding: 20px; 
-            box-sizing: border-box; 
-            text-align: center;
-            background: rgba(0, 0, 0, 0.8);
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-        }
-
-        input, button { 
-            background-color: rgb(0, 0, 0); 
-            color: green; 
-            border: 2px solid green; 
-            padding: 5px; 
-            text-align: center;
-        }
-        
-        button{
-            margin: 10px;
-        }
-        
-        input { width: 60%; }
-        
-        button:hover { color: white; }
-        
-        #dropZone { 
-            width: 50%; 
-            padding: 10px; 
-            border: 2px dashed green; 
-            margin: 5px auto; 
-            text-align: center; 
-            cursor: pointer;
-        }
-
-        #dropZone.dragover {
-            cursor: copy;
-        }
-
-        @keyframes warningblink {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-}
-  
-
-.warning-message {
-    font-size: 3em;
-    font-weight: bolder;
-    color: rgb(233, 10, 10);
-    background-color: rgba(1, 14, 1, 0.5); 
-    margin-bottom: 20px;
-    padding: 10px;
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -90%);
-    z-index: 15;
-    display: none;
-    animation: warningblink 3s linear infinite;
-}
-
-
-        .error-message {
-            color: red;
-            font-size: 0.9em;
-            margin-top: 1px;
-            display: none;
-        }
-
-
-        label {
-    color: lime;
-    display: inline-block;
-    margin-right: 10px;
-
-}
-
-input[type="radio"] {
-    margin-right: 5px;
-}
-
-/* Additional rule for aligning radio buttons and labels on the same line */
-.witness-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-    
-}
-
-.witness-container label {
-    margin-right: 15px;
-}
-
-        .error-border { border: 2px solid red !important; }
-        .success-message { color: lime; font-weight: bold; }
-
-
-
-        /* Typing animation */
-        .typing {
-            font-size: 1.5em;
-            font-weight: bold;
-            white-space: nowrap;
-            overflow: hidden;
-            width: 0;
-            animation: typing 3s steps(30) 1s forwards, blink 0.75s step-end infinite;
-        }
-
-        @keyframes typing {
-            to { width: 100%; }
-        }
-
-        @keyframes blink {
-            0% { border-right: 2px solid transparent; }
-            100% { border-right: 2px solid lime; }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Forensics Submission Terminal</h1>
-    <div class="screen-overlay"></div>
-    <div class="warning-message" id="warningMessage">Check highlighted submission(s)</div>
-    <div class="terminal" id="terminal">
+    <!-- Login Overlay with Effects -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="screen-overlay"></div> <!-- Overlay for fuzzy CRT effect -->
+        <div class="login-container">
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Username" autocomplete="off">
+            <input type="password" id="password" placeholder="Password" autocomplete="off">
+            <button id="login-btn">Login</button>
+            <p id="login-error" class="error-message-login" style="color: red; display: none;">Invalid login. Please try again.</p>
+        </div>
+    </div>
+
+    <!-- Terminal Page (hidden initially) -->
+    <div class="terminal" id="terminal" style="display: none;">
+        <h1>Forensics Submission Terminal</h1>
+        <div class="screen-overlay"></div>
+
+        <!-- Form Fields -->
         <label>Case Number:</label>
         <input type="text" id="caseNumber" autocomplete="off" oninput="clearError(this)" onfocus="clearUploadingMessage()"><br>
-        <span class="error-message" id="caseNumberError">This field is required.</span><br>
-        
-        <label>Voice File Upload (Drag & Drop):</label>
-        <div id="dropZone">Drop file here or click to upload</div>
-        <input type="file" id="fileInput" style="display: none;">
-        <p id="fileNameDisplay"></p>
-        <span class="error-message" id="fileError">A file must be uploaded.</span>
-        <span class="error-message" id="fileInvalidError">Invalid file.</span>
-        <br>
-        
+        <span class="error-message" id="caseNumberError" style="display: none;">This field is required.</span><br>
+
         <label>Footprint ID:</label>
         <input type="text" id="footprint" autocomplete="off" oninput="clearError(this)" onfocus="clearUploadingMessage()"><br>
-        <span class="error-message" id="footprintError">This field is required.</span><br>
-        
+        <span class="error-message" id="footprintError" style="display: none;">This field is required.</span><br>
+
         <label>DNA Sample Code:</label>
         <input type="text" id="dnaSample" autocomplete="off" oninput="clearError(this)" onfocus="clearUploadingMessage()"><br>
-        <span class="error-message" id="dnaSampleError">This field is required.</span><br>
-        
+        <span class="error-message" id="dnaSampleError" style="display: none;">This field is required.</span><br>
+
         <label>Handwriting Analysis:</label>
         <input type="text" id="handwriting" autocomplete="off" oninput="clearError(this)" onfocus="clearUploadingMessage()"><br>
-        <span class="error-message" id="handwritingError">This field is required.</span><br>
-        
-        <label for="witnessesPresent" class="witness-label" id="witnessesLabel">Witnesses Present:</label>
-    <div class="witness-container">
-        <input type="radio" id="witnessYes" name="witness" value="yes"> Yes
-        <input type="radio" id="witnessNo" name="witness" value="no" > No
-    </div>
+        <span class="error-message" id="handwritingError" style="display: none;">This field is required.</span><br>
+
+        <label>Witnesses Present:</label>
+        <div class="witness-container">
+            <input type="radio" id="witnessYes" name="witness" value="yes"> Yes
+            <input type="radio" id="witnessNo" name="witness" value="no" > No
+        </div>
+        <span class="error-message" id="witnessError" style="display: none;">This field is required.</span><br>
+
+        <label>Audio Analysis File (Drag and Drop):</label>
+        <div id="audioFileDropZone" class="drop-zone">
+            Drop file here or click to upload
+        </div>
+        <input type="file" id="audioFileInput" style="display: none;" accept=".mp3">
+        <span class="error-message" id="audioFileError" style="display: none;">This field is required.</span><br>
+
         <button onclick="submitData()">Submit Evidence</button>
         <p id="response"></p>
+        <div class="warning-message" id="warningMessage" style="display: none;">Check highlighted submission(s)</div>
     </div>
 
     <script>
-        let dropZone = document.getElementById('dropZone');
-        let fileInput = document.getElementById('fileInput');
+        const loginOverlay = document.getElementById('login-overlay');
+        const loginError = document.getElementById('login-error');
+        const terminal = document.getElementById('terminal');
+        const loginButton = document.getElementById('login-btn');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
 
-        dropZone.addEventListener('click', function() {
-            fileInput.click();
+        const correctUsername = 'COFramesly';
+        const correctPassword = '1234';
+
+        loginButton.addEventListener('click', function() {
+            if (usernameInput.value === correctUsername && passwordInput.value === correctPassword) {
+                loginOverlay.style.display = 'none';
+                terminal.style.display = 'flex';
+            } else {
+                loginError.style.display = 'block';
+            }
         });
 
-        dropZone.addEventListener('dragover', function(event) {
-            event.preventDefault();
-            this.classList.add('dragover');
+        // Drag and Drop Logic for the Audio File
+        const audioFileDropZone = document.getElementById('audioFileDropZone');
+        const audioFileInput = document.getElementById('audioFileInput');
+        const audioFileError = document.getElementById('audioFileError');
+
+        audioFileDropZone.addEventListener('click', () => {
+            audioFileInput.click();
         });
 
-        dropZone.addEventListener('dragleave', function(event) {
-            this.classList.remove('dragover');
+        audioFileDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            audioFileDropZone.classList.add('dragover');
         });
 
-        dropZone.addEventListener('drop', function(event) {
-            event.preventDefault();
-            this.classList.remove('dragover');
-            let file = event.dataTransfer.files[0];
-            fileInput.files = event.dataTransfer.files;
-            document.getElementById('fileNameDisplay').textContent = 'Uploaded: ' + file.name;
-
-            // Reset to green and remove error message
-            dropZone.classList.remove('error-border');
-            document.getElementById('fileError').style.display = 'none';
-            document.getElementById('fileInvalidError').style.display = 'none';
+        audioFileDropZone.addEventListener('dragleave', () => {
+            audioFileDropZone.classList.remove('dragover');
         });
 
+        audioFileDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            audioFileInput.files = e.dataTransfer.files;
+            audioFileDropZone.textContent = file.name;
+            audioFileDropZone.classList.remove('dragover');
+        });
+
+        // Define submitData function
         function submitData() {
-    document.getElementById('response').textContent = 'Forensics info uploading...';
+            // Display the "Forensics information updating..." message
+            document.getElementById('response').textContent = 'Forensics information updating...';
+            document.getElementById('response').style.display = 'block'; // Make sure it’s visible
 
-    let fields = ['caseNumber', 'footprint', 'dnaSample', 'handwriting'];
-    let allValid = true;
-    let invalidFields = [];
+            // Simulate a brief delay (for example, 2 seconds) before validating
+            setTimeout(() => {
+                const caseNumber = document.getElementById('caseNumber').value;
+                const footprint = document.getElementById('footprint').value;
+                const dnaSample = document.getElementById('dnaSample').value;
+                const handwriting = document.getElementById('handwriting').value;
+                const witnessYes = document.getElementById('witnessYes').checked;
+                const witnessNo = document.getElementById('witnessNo').checked;
+                const audioFile = audioFileInput.files[0];
 
-    // Validate text inputs with strict value checks
-    fields.forEach(id => {
-        let field = document.getElementById(id);
-        let errorSpan = document.getElementById(id + 'Error');
-        if (!field.value.trim()) {
-            invalidFields.push({ field, errorSpan });
-            allValid = false;
-        } else if (
-            (id === 'caseNumber' && field.value !== '25STH') ||
-            (id === 'footprint' && field.value !== 'FP123') ||
-            (id === 'dnaSample' && field.value !== 'DNA456') ||
-            (id === 'handwriting' && field.value !== 'HW789')
-        ) {
-            invalidFields.push({ field, errorSpan });
-            allValid = false;
+                let isValid = true;
+
+                // Clear previous error states
+                clearErrors();
+                document.getElementById('warningMessage').style.display = 'none';  // Hide the big warning message initially
+
+                // Validate Case Number (should match the format: 25STH)
+                if (!caseNumber || !/^\d{2}[A-Za-z]{3}$/.test(caseNumber)) {  // e.g., 25STH
+                    document.getElementById('caseNumber').classList.add('error-border');
+                    isValid = false;
+                }
+
+                // Validate Footprint ID (should match the format: FP123)
+                if (!footprint || !/^FP\d{3}$/.test(footprint)) {  // e.g., FP123
+                    document.getElementById('footprint').classList.add('error-border');
+                    isValid = false;
+                }
+
+                // Validate DNA Sample Code (should match the format: DNA456)
+                if (!dnaSample || !/^DNA\d{3}$/.test(dnaSample)) {  // e.g., DNA456
+                    document.getElementById('dnaSample').classList.add('error-border');
+                    isValid = false;
+                }
+
+                // Validate Handwriting (should match the format: HW789)
+                if (!handwriting || !/^HW\d{3}$/.test(handwriting)) {  // e.g., HW789
+                    document.getElementById('handwriting').classList.add('error-border');
+                    isValid = false;
+                }
+
+                // Validate Audio File (should be named Suspect_voice00.mp3)
+                if (!audioFile) {
+                    document.getElementById('audioFileError').style.display = 'inline';  // Show "This field is required"
+                    document.getElementById('audioFileDropZone').classList.add('error-border-audio');
+                    isValid = false;
+                } else if (!/^Suspect_voice\d{2}\.mp3$/.test(audioFile.name)) {  // e.g., Suspect_voice00.mp3
+                    document.getElementById('audioFileDropZone').classList.add('error-border-audio');
+                    isValid = false;
+                }
+
+                // Validate Witness selection
+                if (!(witnessYes || witnessNo)) {
+                    document.getElementById('witnessError').style.display = 'inline';
+                    isValid = false;
+                }
+
+                // If validation failed, show the warning message and make it flash for 3 seconds
+                if (!isValid) {
+                    const warningMessage = document.getElementById('warningMessage');
+                    warningMessage.style.display = 'block';
+                    setTimeout(() => {
+                        warningMessage.style.display = 'none';  // Hide after 3 seconds
+                    }, 3000);
+
+                    // Set the response message as an error message
+                    document.getElementById('response').textContent = 'Please fill out all required fields correctly.';
+                    document.getElementById('response').classList.remove('success');
+                    document.getElementById('response').classList.add('error');
+                } else {
+                    // All fields are valid, process the data (show success message)
+                    document.getElementById('response').textContent = 'Evidence submitted successfully!';
+                    document.getElementById('response').classList.remove('error');
+                    document.getElementById('response').classList.add('success');
+                }
+            }, 2000);  // Wait 2 seconds before performing validation
         }
-    });
 
-    // Validate witness selection
-    let witnessChecked = document.querySelector('input[name="witness"]:checked');
-    if (!witnessChecked || witnessChecked.value !== 'no') {
-        let witnessLabel = document.getElementById('witnessesLabel');
-        invalidFields.push({ field: witnessLabel, errorSpan: null });
-        allValid = false;
-    }
+        // Clear error messages and reset borders
+        function clearErrors() {
+            document.getElementById('caseNumberError').style.display = 'none';
+            document.getElementById('footprintError').style.display = 'none';
+            document.getElementById('dnaSampleError').style.display = 'none';
+            document.getElementById('handwritingError').style.display = 'none';
+            document.getElementById('witnessError').style.display = 'none';
+            document.getElementById('audioFileError').style.display = 'none';  // Hide the error message
 
-    // Validate file drop zone for "suspect_voice00.mp3"
-    let fileInput = document.getElementById('fileInput');
-    let dropZone = document.getElementById('dropZone');
-    let fileError = document.getElementById('fileError');
-    let fileInvalidError = document.getElementById('fileInvalidError');
-    if (!fileInput.files.length) {
-        invalidFields.push({ field: dropZone, errorSpan: fileError });
-        allValid = false;
-    } else {
-        let validFile = fileInput.files[0].name === 'suspect_voice00.mp3'; // Check for exact file name
-        if (!validFile) {
-            invalidFields.push({ field: dropZone, errorSpan: fileInvalidError });
-            allValid = false;
+            document.getElementById('caseNumber').classList.remove('error-border');
+            document.getElementById('footprint').classList.remove('error-border');
+            document.getElementById('dnaSample').classList.remove('error-border');
+            document.getElementById('handwriting').classList.remove('error-border');
+            document.getElementById('audioFileDropZone').classList.remove('error-border');
         }
-    }
-
-    // Apply synchronized delay for errors and warning message
-    setTimeout(function () {
-        if (allValid) {
-            document.getElementById('response').textContent = 'Evidence submission successful!';
-            document.getElementById('warningMessage').style.display = 'none';
-        } else {
-            // Highlight invalid fields and show warning
-            invalidFields.forEach(({ field, errorSpan }) => {
-                field.classList.add('error-border');
-                if (errorSpan) errorSpan.style.display = 'block';
-            });
-            document.getElementById('warningMessage').style.display = 'block';
-            document.getElementById('response').textContent = ''; // Clear "uploading" message
-
-        // Hide warning message after 3 seconds
-        setTimeout(function () {
-                document.getElementById('warningMessage').style.display = 'none';
-            }, 3000); // 3-second delay for hiding the warning message
-        }
-        
-    }, 2000); // Apply 2-second delay
-}
-
-
-
-
     </script>
 </body>
 </html>
