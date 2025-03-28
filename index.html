@@ -116,9 +116,11 @@
 
         // Define submitData function
         function submitData() {
+    // Display the "Forensics information updating..." message
     document.getElementById('response').textContent = 'Forensics information updating...';
     document.getElementById('response').style.display = 'block'; // Make sure it’s visible
 
+    // Simulate a brief delay (for example, 2 seconds) before validating
     setTimeout(() => {
         const caseNumber = document.getElementById('caseNumber').value;
         const footprint = document.getElementById('footprint').value;
@@ -130,28 +132,28 @@
 
         let isValid = true;
 
-        // Validate form fields (you can implement this)
+        // Validate form fields
+        // (validation logic here)
+
         if (!isValid) {
+            // Show error message
             document.getElementById('response').textContent = 'Please fill out all required fields correctly.';
             document.getElementById('response').classList.remove('success');
             document.getElementById('response').classList.add('error');
         } else {
+            // Display success message
             document.getElementById('response').textContent = 'Evidence submitted successfully!';
             document.getElementById('response').classList.remove('error');
             document.getElementById('response').classList.add('success');
 
-            // Hide the login and terminal screens
+            // Hide the form and show the success page
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('terminal').style.display = 'none';
-
-            // Show the success page with transition
-            const successPage = document.getElementById('success-page');
-            successPage.style.visibility = 'visible';  // Set visibility to visible
-            successPage.style.opacity = 1;             // Set opacity to 1 for a smooth fade-in
+            document.getElementById('success-page').style.display = 'flex';
         }
-    }, 2000);
+    }, 2000);  // Wait 2 seconds before performing validation
 }
-
+        // Clear error messages and reset borders
         function clearErrors() {
             document.getElementById('caseNumberError').style.display = 'none';
             document.getElementById('footprintError').style.display = 'none';
