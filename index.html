@@ -60,6 +60,14 @@
         <div class="warning-message" id="warningMessage" style="display: none;">Check highlighted submission(s)</div>
     </div>
 
+    <!-- Success Page (hidden initially) -->
+<div class="success-page" id="success-page" style="display: none;">
+    <div class="screen-overlay"></div> <!-- Overlay for fuzzy CRT effect -->
+    <div class="success-container">
+        <h1 id="success-message">Evidence accepted. Please use your EVD code to logout.</h1>
+    </div>
+</div>
+
     <script>
         const loginOverlay = document.getElementById('login-overlay');
         const loginError = document.getElementById('login-error');
@@ -108,90 +116,43 @@
 
         // Define submitData function
         function submitData() {
-            // Display the "Forensics information updating..." message
-            document.getElementById('response').textContent = 'Forensics information updating...';
-            document.getElementById('response').style.display = 'block'; // Make sure it’s visible
+    // Display the "Forensics information updating..." message
+    document.getElementById('response').textContent = 'Forensics information updating...';
+    document.getElementById('response').style.display = 'block'; // Make sure it’s visible
 
-            // Simulate a brief delay (for example, 2 seconds) before validating
-            setTimeout(() => {
-                const caseNumber = document.getElementById('caseNumber').value;
-                const footprint = document.getElementById('footprint').value;
-                const dnaSample = document.getElementById('dnaSample').value;
-                const handwriting = document.getElementById('handwriting').value;
-                const witnessYes = document.getElementById('witnessYes').checked;
-                const witnessNo = document.getElementById('witnessNo').checked;
-                const audioFile = audioFileInput.files[0];
+    // Simulate a brief delay (for example, 2 seconds) before validating
+    setTimeout(() => {
+        const caseNumber = document.getElementById('caseNumber').value;
+        const footprint = document.getElementById('footprint').value;
+        const dnaSample = document.getElementById('dnaSample').value;
+        const handwriting = document.getElementById('handwriting').value;
+        const witnessYes = document.getElementById('witnessYes').checked;
+        const witnessNo = document.getElementById('witnessNo').checked;
+        const audioFile = audioFileInput.files[0];
 
-                let isValid = true;
+        let isValid = true;
 
-                // Clear previous error states
-                clearErrors();
-                document.getElementById('warningMessage').style.display = 'none';  // Hide the big warning message initially
+        // Validate form fields
+        // (validation logic here)
 
-                // Validate Case Number (should match the format: 25STH)
-                if (!caseNumber || !/^\d{2}[A-Za-z]{3}$/.test(caseNumber)) {  // e.g., 25STH
-                    document.getElementById('caseNumber').classList.add('error-border');
-                    isValid = false;
-                }
+        if (!isValid) {
+            // Show error message
+            document.getElementById('response').textContent = 'Please fill out all required fields correctly.';
+            document.getElementById('response').classList.remove('success');
+            document.getElementById('response').classList.add('error');
+        } else {
+            // Display success message
+            document.getElementById('response').textContent = 'Evidence submitted successfully!';
+            document.getElementById('response').classList.remove('error');
+            document.getElementById('response').classList.add('success');
 
-                // Validate Footprint ID (should match the format: FP123)
-                if (!footprint || !/^FP\d{3}$/.test(footprint)) {  // e.g., FP123
-                    document.getElementById('footprint').classList.add('error-border');
-                    isValid = false;
-                }
-
-                // Validate DNA Sample Code (should match the format: DNA456)
-                if (!dnaSample || !/^DNA\d{3}$/.test(dnaSample)) {  // e.g., DNA456
-                    document.getElementById('dnaSample').classList.add('error-border');
-                    isValid = false;
-                }
-
-                // Validate Handwriting (should match the format: HW789)
-                if (!handwriting || !/^HW\d{3}$/.test(handwriting)) {  // e.g., HW789
-                    document.getElementById('handwriting').classList.add('error-border');
-                    isValid = false;
-                }
-
-                // Validate Audio File (only accept suspect_voice00.mp3 with any capitalization of 'suspect')
-                if (!audioFile) {
-                    document.getElementById('audioFileError').style.display = 'inline';  // Show "This field is required"
-                    document.getElementById('audioFileDropZone').classList.add('error-border-audio');
-                    isValid = false;
-                } else {
-                    console.log("Selected file:", audioFile.name);  // Debugging statement to see the file name
-                    if (!/^suspect_voice00\.mp3$/i.test(audioFile.name)) {  // Match only suspect_voice00.mp3
-                        document.getElementById('audioFileDropZone').classList.add('error-border-audio');
-                        isValid = false;
-                    }
-                }
-
-                // Validate Witness selection
-                if (!(witnessYes || witnessNo)) {
-                    document.getElementById('witnessError').style.display = 'inline';
-                    isValid = false;
-                }
-
-                // If validation failed, show the warning message and make it flash for 3 seconds
-                if (!isValid) {
-                    const warningMessage = document.getElementById('warningMessage');
-                    warningMessage.style.display = 'block';
-                    setTimeout(() => {
-                        warningMessage.style.display = 'none';  // Hide after 3 seconds
-                    }, 3000);
-
-                    // Set the response message as an error message
-                    document.getElementById('response').textContent = 'Please fill out all required fields correctly.';
-                    document.getElementById('response').classList.remove('success');
-                    document.getElementById('response').classList.add('error');
-                } else {
-                    // All fields are valid, process the data (show success message)
-                    document.getElementById('response').textContent = 'Evidence submitted successfully!';
-                    document.getElementById('response').classList.remove('error');
-                    document.getElementById('response').classList.add('success');
-                }
-            }, 2000);  // Wait 2 seconds before performing validation
+            // Hide the form and show the success page
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('terminal').style.display = 'none';
+            document.getElementById('success-page').style.display = 'flex';
         }
-
+    }, 2000);  // Wait 2 seconds before performing validation
+}
         // Clear error messages and reset borders
         function clearErrors() {
             document.getElementById('caseNumberError').style.display = 'none';
