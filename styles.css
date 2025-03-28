@@ -259,9 +259,7 @@ button:hover {
     justify-content: center;
     align-items: center;
     z-index: 100;
-    visibility: hidden;  /* Initially hidden */
-    opacity: 0;           /* Initially invisible */
-    transition: visibility 0s 1s, opacity 1s ease;  /* Fade in and out */
+    display: none;  /* Initially hidden */
 }
 
 .success-container {
@@ -269,25 +267,41 @@ button:hover {
     color: rgba(0, 255, 0, 0.356);
     padding: 40px;
     border: 4px solid lime;
-    text-align: left;  
+    text-align: left;  /* Align text to the left */
     width: 80%;
     max-width: 600px;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
     overflow: hidden;
+    white-space: normal;  /* Allow text to wrap naturally */
+    word-wrap: break-word;  /* Break long words and wrap text */
+    height: auto;  /* Allow container to expand dynamically */
+    max-height: 80vh;  /* Limit the height of the container */
+    display: flex;
+    flex-direction: column;  /* Ensures the content grows vertically */
 }
 
 #success-message {
     font-size: 2em;
     font-weight: bold;
-    color: lime;
-    white-space: nowrap;
+    color: rgba(0, 255, 0, 0.568);
+    white-space: normal; /* Allow text wrapping */
     overflow: hidden;
     width: 0;
-    animation: typing 3s steps(40) 1s forwards, blink 0.75s step-end infinite;
+    animation: typing 3s steps(40) 1s forwards, blink 0.75s step-end infinite;  /* Typewriter effect */
 }
 
 @keyframes typing {
-    from { width: 0; }
-    to { width: 100%; }
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes blink {
+    50% {
+        border-color: transparent;
+    }
 }
