@@ -5,169 +5,151 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security Terminal</title>
     <link rel="stylesheet" href="styles.css">
+    
 </head>
 <body>
-    <!-- Login Overlay with Effects -->
-    <div id="login-overlay" class="login-overlay">
-        <div class="screen-overlay"></div> <!-- Overlay for fuzzy CRT effect -->
-        <div class="login-container">
-            <h2>Login</h2>
-            <input type="text" id="username" placeholder="Username" autocomplete="off">
-            <input type="password" id="password" placeholder="Password" autocomplete="off">
-            <button id="login-btn">Login</button>
-            <p id="login-error" class="error-message-login" style="color: red; display: none;">Invalid login. Please try again.</p>
-        </div>
-    </div>
-
-    <!-- Terminal Page (hidden initially) -->
-    <div class="terminal" id="terminal" style="display: none;">
-        <h1>Forensics Submission Terminal</h1>
-        <div class="screen-overlay"></div>
-
-        <!-- Form Fields -->
+    <h1>Forensics Submission Terminal</h1>
+    <div class="screen-overlay"></div>
+    <div class="warning-message" id="warningMessage">Check highlighted submission(s)</div>
+    <div class="terminal" id="terminal">
         <label>Case Number:</label>
         <input type="text" id="caseNumber" autocomplete="off" oninput="clearError(this)" onfocus="clearUploadingMessage()"><br>
-        <span class="error-message" id="caseNumberError" style="display: none;">This field is required.</span><br>
-
+        <span class="error-message" id="caseNumberError">This field is required.</span><br>
+        
+        <label>Voice File Upload (Drag & Drop):</label>
+        <div id="dropZone">Drop file here or click to upload</div>
+        <input type="file" id="fileInput" style="display: none;">
+        <p id="fileNameDisplay"></p>
+        <span class="error-message" id="fileError">A file must be uploaded.</span>
+        <span class="error-message" id="fileInvalidError">Invalid file.</span>
+        <br>
+        
         <label>Footprint ID:</label>
         <input type="text" id="footprint" autocomplete="off" oninput="clearError(this)" onfocus="clearUploadingMessage()"><br>
-        <span class="error-message" id="footprintError" style="display: none;">This field is required.</span><br>
-
+        <span class="error-message" id="footprintError">This field is required.</span><br>
+        
         <label>DNA Sample Code:</label>
         <input type="text" id="dnaSample" autocomplete="off" oninput="clearError(this)" onfocus="clearUploadingMessage()"><br>
-        <span class="error-message" id="dnaSampleError" style="display: none;">This field is required.</span><br>
-
+        <span class="error-message" id="dnaSampleError">This field is required.</span><br>
+        
         <label>Handwriting Analysis:</label>
         <input type="text" id="handwriting" autocomplete="off" oninput="clearError(this)" onfocus="clearUploadingMessage()"><br>
-        <span class="error-message" id="handwritingError" style="display: none;">This field is required.</span><br>
-
-        <label>Witnesses Present:</label>
-        <div class="witness-container">
-            <input type="radio" id="witnessYes" name="witness" value="yes"> Yes
-            <input type="radio" id="witnessNo" name="witness" value="no" > No
-        </div>
-        <span class="error-message" id="witnessError" style="display: none;">This field is required.</span><br>
-
-        <label>Audio Analysis File (Drag and Drop):</label>
-        <div id="audioFileDropZone" class="drop-zone">
-            Drop file here or click to upload
-        </div>
-        <input type="file" id="audioFileInput" style="display: none;" accept=".mp3">
-        <span class="error-message" id="audioFileError" style="display: none;">This field is required.</span><br>
-
+        <span class="error-message" id="handwritingError">This field is required.</span><br>
+        
+        <label for="witnessesPresent" class="witness-label" id="witnessesLabel">Witnesses Present:</label>
+    <div class="witness-container">
+        <input type="radio" id="witnessYes" name="witness" value="yes"> Yes
+        <input type="radio" id="witnessNo" name="witness" value="no" > No
+    </div>
         <button onclick="submitData()">Submit Evidence</button>
         <p id="response"></p>
-        <div class="warning-message" id="warningMessage" style="display: none;">Check highlighted submission(s)</div>
     </div>
-
-    <!-- Success Page (hidden initially) -->
-<div class="success-page" id="success-page" style="display: none;">
-    <div class="screen-overlay"></div> <!-- Overlay for fuzzy CRT effect -->
-    <div class="success-container">
-        <h1 id="success-message">Evidence accepted. Please use your EVD code to logout.</h1>
-    </div>
-</div>
 
     <script>
-        const loginOverlay = document.getElementById('login-overlay');
-        const loginError = document.getElementById('login-error');
-        const terminal = document.getElementById('terminal');
-        const loginButton = document.getElementById('login-btn');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
+        let dropZone = document.getElementById('dropZone');
+        let fileInput = document.getElementById('fileInput');
 
-        const correctUsername = 'COFramesly';
-        const correctPassword = '1234';
-
-        loginButton.addEventListener('click', function() {
-            if (usernameInput.value === correctUsername && passwordInput.value === correctPassword) {
-                loginOverlay.style.display = 'none';
-                terminal.style.display = 'flex';
-            } else {
-                loginError.style.display = 'block';
-            }
+        dropZone.addEventListener('click', function() {
+            fileInput.click();
         });
 
-        // Drag and Drop Logic for the Audio File
-        const audioFileDropZone = document.getElementById('audioFileDropZone');
-        const audioFileInput = document.getElementById('audioFileInput');
-        const audioFileError = document.getElementById('audioFileError');
-
-        audioFileDropZone.addEventListener('click', () => {
-            audioFileInput.click();
+        dropZone.addEventListener('dragover', function(event) {
+            event.preventDefault();
+            this.classList.add('dragover');
         });
 
-        audioFileDropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            audioFileDropZone.classList.add('dragover');
+        dropZone.addEventListener('dragleave', function(event) {
+            this.classList.remove('dragover');
         });
 
-        audioFileDropZone.addEventListener('dragleave', () => {
-            audioFileDropZone.classList.remove('dragover');
+        dropZone.addEventListener('drop', function(event) {
+            event.preventDefault();
+            this.classList.remove('dragover');
+            let file = event.dataTransfer.files[0];
+            fileInput.files = event.dataTransfer.files;
+            document.getElementById('fileNameDisplay').textContent = 'Uploaded: ' + file.name;
+
+            // Reset to green and remove error message
+            dropZone.classList.remove('error-border');
+            document.getElementById('fileError').style.display = 'none';
+            document.getElementById('fileInvalidError').style.display = 'none';
         });
 
-        audioFileDropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            const file = e.dataTransfer.files[0];
-            audioFileInput.files = e.dataTransfer.files;
-            audioFileDropZone.textContent = file.name;
-            audioFileDropZone.classList.remove('dragover');
-        });
-
-        // Define submitData function
         function submitData() {
-    // Display the "Forensics information updating..." message
-    document.getElementById('response').textContent = 'Forensics information updating...';
-    document.getElementById('response').style.display = 'block'; // Make sure it’s visible
+    document.getElementById('response').textContent = 'Forensics info uploading...';
 
-    // Simulate a brief delay (for example, 2 seconds) before validating
-    setTimeout(() => {
-        const caseNumber = document.getElementById('caseNumber').value;
-        const footprint = document.getElementById('footprint').value;
-        const dnaSample = document.getElementById('dnaSample').value;
-        const handwriting = document.getElementById('handwriting').value;
-        const witnessYes = document.getElementById('witnessYes').checked;
-        const witnessNo = document.getElementById('witnessNo').checked;
-        const audioFile = audioFileInput.files[0];
+    let fields = ['caseNumber', 'footprint', 'dnaSample', 'handwriting'];
+    let allValid = true;
+    let invalidFields = [];
 
-        let isValid = true;
+    // Validate text inputs with strict value checks
+    fields.forEach(id => {
+        let field = document.getElementById(id);
+        let errorSpan = document.getElementById(id + 'Error');
+        if (!field.value.trim()) {
+            invalidFields.push({ field, errorSpan });
+            allValid = false;
+        } else if (
+            (id === 'caseNumber' && field.value !== '25STH') ||
+            (id === 'footprint' && field.value !== 'FP123') ||
+            (id === 'dnaSample' && field.value !== 'DNA456') ||
+            (id === 'handwriting' && field.value !== 'HW789')
+        ) {
+            invalidFields.push({ field, errorSpan });
+            allValid = false;
+        }
+    });
 
-        // Validate form fields
-        // (validation logic here)
+    // Validate witness selection
+    let witnessChecked = document.querySelector('input[name="witness"]:checked');
+    if (!witnessChecked || witnessChecked.value !== 'no') {
+        let witnessLabel = document.getElementById('witnessesLabel');
+        invalidFields.push({ field: witnessLabel, errorSpan: null });
+        allValid = false;
+    }
 
-        if (!isValid) {
-            // Show error message
-            document.getElementById('response').textContent = 'Please fill out all required fields correctly.';
-            document.getElementById('response').classList.remove('success');
-            document.getElementById('response').classList.add('error');
+    // Validate file drop zone for "suspect_voice00.mp3"
+    let fileInput = document.getElementById('fileInput');
+    let dropZone = document.getElementById('dropZone');
+    let fileError = document.getElementById('fileError');
+    let fileInvalidError = document.getElementById('fileInvalidError');
+    if (!fileInput.files.length) {
+        invalidFields.push({ field: dropZone, errorSpan: fileError });
+        allValid = false;
+    } else {
+        let validFile = fileInput.files[0].name === 'suspect_voice00.mp3'; // Check for exact file name
+        if (!validFile) {
+            invalidFields.push({ field: dropZone, errorSpan: fileInvalidError });
+            allValid = false;
+        }
+    }
+
+    // Apply synchronized delay for errors and warning message
+    setTimeout(function () {
+        if (allValid) {
+            document.getElementById('response').textContent = 'Evidence submission successful!';
+            document.getElementById('warningMessage').style.display = 'none';
         } else {
-            // Display success message
-            document.getElementById('response').textContent = 'Evidence submitted successfully!';
-            document.getElementById('response').classList.remove('error');
-            document.getElementById('response').classList.add('success');
+            // Highlight invalid fields and show warning
+            invalidFields.forEach(({ field, errorSpan }) => {
+                field.classList.add('error-border');
+                if (errorSpan) errorSpan.style.display = 'block';
+            });
+            document.getElementById('warningMessage').style.display = 'block';
+            document.getElementById('response').textContent = ''; // Clear "uploading" message
 
-            // Hide the form and show the success page
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('terminal').style.display = 'none';
-            document.getElementById('success-page').style.display = 'flex';
+        // Hide warning message after 3 seconds
+        setTimeout(function () {
+                document.getElementById('warningMessage').style.display = 'none';
+            }, 3000); // 3-second delay for hiding the warning message
         }
-    }, 2000);  // Wait 2 seconds before performing validation
+        
+    }, 2000); // Apply 2-second delay
 }
-        // Clear error messages and reset borders
-        function clearErrors() {
-            document.getElementById('caseNumberError').style.display = 'none';
-            document.getElementById('footprintError').style.display = 'none';
-            document.getElementById('dnaSampleError').style.display = 'none';
-            document.getElementById('handwritingError').style.display = 'none';
-            document.getElementById('witnessError').style.display = 'none';
-            document.getElementById('audioFileError').style.display = 'none';  // Hide the error message
 
-            document.getElementById('caseNumber').classList.remove('error-border');
-            document.getElementById('footprint').classList.remove('error-border');
-            document.getElementById('dnaSample').classList.remove('error-border');
-            document.getElementById('handwriting').classList.remove('error-border');
-            document.getElementById('audioFileDropZone').classList.remove('error-border');
-        }
+
+
+
     </script>
 </body>
 </html>
