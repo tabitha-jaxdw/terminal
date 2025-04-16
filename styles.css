@@ -1,26 +1,20 @@
 
-body {
-    font-family: 'Courier New', Courier, monospace;
-    background-color: rgb(20, 20, 20);
-    color: green;
-    text-align: center;
-    overflow: hidden;
-}
+
 
 .screen-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     pointer-events: none;
     background: 
         repeating-linear-gradient(
-            rgba(0, 255, 0, 0.1) 0px, 
-            rgba(0, 255, 0, 0.05) 2px, 
+            rgba(47, 0, 255, 0.1) 0px, 
+            rgba(76, 0, 255, 0.05) 2px, 
             rgba(0, 0, 0, 0.1) 4px
         ),
-        radial-gradient(circle, rgba(0, 255, 0, 0.1), rgba(0, 0, 0, 0.4));
+        radial-gradient(circle, rgba(55, 0, 255, 0.1), rgba(0, 0, 0, 0.4));
     animation: screenFlicker 0.2s infinite alternate, scanline 0.1s infinite;
     z-index: 1;
 }
@@ -35,26 +29,31 @@ body {
     100% { background-position: 0 100%; }
 }
 
+
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: rgb(20, 20, 20);
+    color: rgba(0, 119, 128, 0.904);
+    text-align: center;
+    overflow: hidden;
+}
+
 .terminal {
-    position: relative;
-    width: 100%;
-    min-height: fit-content;  /* Ensure full viewport height */
+    position: fixed;
     font-size: 1.5em;
-    display: flex;
     flex-direction: column;
-    justify-content: flex-start;  /* Align to the top */
     align-items: center;
-    padding: 10px;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    height: calc(100vh - 20px);
+    width: 100%;
+    padding: 15px;
     box-sizing: border-box;  /* Ensures padding is included */
     background: rgba(0, 0, 0, 0.85);
-    border: 4px solid lime;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    border: 4px solid rgba(0, 89, 255, 0.562);
+    box-shadow: 0 0 20px rgba(38, 0, 255, 0.3);
     z-index: 10;
-    overflow: hidden;  /* Prevent overflow that could hide the border */
     animation: blurIn 1s ease-out forwards;
     opacity: 0;  /* Start as invisible */
+    overflow-y: auto;
 }
 
 @keyframes blurIn {
@@ -68,11 +67,20 @@ body {
     }
 }
 
+/* Change scrollbar width */
+.terminal {
+    scrollbar-width: thin; /* Options: auto, thin, none */
+    scrollbar-color: rgba(17, 0, 255, 0.432) rgba(0, 0, 0, 0.85); /* Thumb color and track color */
+}
+
+#info {
+ display: block !important;
+}
+
 input, button {
     background-color: rgb(0, 0, 0);
-    color: green;
-    border: 2px solid green;
-    padding: 8px;
+    color: rgba(0, 109, 128, 0.637);
+    border: 2px solid rgba(19, 0, 128, 0.671);
     text-align: center;
 }
 
@@ -109,9 +117,9 @@ button:hover {
 
 .login-container {
     background: black;
-    color: rgba(0, 255, 0, 0.356);
+    color: rgba(0, 17, 255, 0.356);
     padding: 40px;
-    border: 2px solid lime;
+    border: 2px solid rgba(0, 4, 255, 0.747);
     text-align: center;
     width: 400px;
     border-radius: 8px;
@@ -120,15 +128,15 @@ button:hover {
 
 .login-container input {
     background: #222;
-    color: rgba(0, 255, 0, 0.356);
-    border: 2px solid rgb(0, 255, 0, );
+    color: rgba(0, 132, 255, 0.356);
+    border: 2px solid rgba(0, 17, 255, 0.411);
     padding: 10px;
     width: calc(100% - 20px);
     margin: 10px 0;
 }
 
 .login-container button {
-    background: rgba(0, 255, 0, 0.356);
+    background: rgba(0, 102, 255, 0.356);
     color: black;
     border: none;
     padding: 10px;
@@ -137,11 +145,10 @@ button:hover {
 }
 
 .login-container button:hover {
-    background: darkgreen;
+    background: rgb(10, 0, 100);
 }
 
 .witness-container {
-    display: flex;
     justify-content: center;
     gap: 20px;
     align-items: center;
@@ -192,7 +199,7 @@ button:hover {
 
 #response {
     font-size: 1.2em;
-    color: lime;
+    color: rgba(0, 132, 255, 0.404);
     font-weight: bold;
     margin-top: 20px;
     display: none; /* Initially hidden */
@@ -215,14 +222,14 @@ button:hover {
 }
 
 #response.success {
-    color: lime; /* Green for success messages */
+    color: rgba(0, 119, 255, 0.541); /* Green for success messages */
 }
 
 .drop-zone {
     width: auto;
     padding: 20px;
     margin: 10px auto;
-    border: 2px dashed green;
+    border: 2px dashed rgb(0, 51, 128);
     text-align: center;
     cursor: pointer;
     transition: transform 0.2s ease;
@@ -260,14 +267,14 @@ button:hover {
 /* Styling for the success container */
 .success-container {
     background: black;
-    color: rgba(0, 255, 0, 0.356);
+    color: rgba(0, 162, 255, 0.356);
     padding: 40px;
-    border: 4px solid lime;
+    border: 4px solid rgba(38, 0, 255, 0.562);
     text-align: left;
     width: 80%;
     max-width: 600px;
     border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+    box-shadow: 0 0 15px rgba(0, 26, 255, 0.3);
     overflow: hidden;
     white-space: normal;  /* Allow text to wrap naturally */
     word-wrap: break-word;  /* Break long words and wrap text */
@@ -282,8 +289,4 @@ button:hover {
     filter: none; /* Initially no blur */
 }
 
-
-.terminal, input, button {
-    box-sizing: border-box;  /* Includes padding and borders in the element's width/height */
-}
 
